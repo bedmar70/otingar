@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario Otingar - Crear Tarea</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .logo {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        h1 {
+            color: #1a202c;
+            font-size: 28px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            color: #2d3748;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .required {
+            color: #e53e3e;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="date"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+            font-family: inherit;
+            background-color: white;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .lookup-container {
+            position: relative;
+        }
+
+        .lookup-input-wrapper {
+            position: relative;
+        }
+
+        .lookup-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #a0aec0;
+            font-size: 16px;
+        }
+
+        .lookup-input-wrapper input {
+            padding-left: 40px;
+        }
+
+        .lookup-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 250px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .lookup-results.active {
+            display: block;
+        }
+
+        .lookup-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background-color 0.15s;
+            border-bottom: 1px solid #f7fafc;
+        }
+
+        .lookup-item:hover {
+            background-color: #edf2f7;
+        }
+
+        .lookup-item:last-child {
+            border-bottom: none;
+        }
+
+        .lookup-item-main {
+            font-weight: 500;
+            color: #2d3748;
+        }
+
+        .lookup-item-sub {
+            font-size: 12px;
+            color: #718096;
+            margin-top: 2px;
+        }
+
+        .lookup-loading {
+            padding: 12px 16px;
+            color: #718096;
+            text-align: center;
+        }
+
+        .lookup-no-results {
+            padding: 12px 16px;
+            color: #718096;
+            text-align: center;
+        }
+
+        .lookup-selected {
+            display: none;
+            padding: 8px 12px;
+            background-color: #edf2f7;
+            border-radius: 6px;
+            margin-top: 8px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .lookup-selected.active {
+            display: flex;
+        }
+
+        .lookup-selected-text {
+            font-size: 14px;
+            color: #2d3748;
+        }
+
+        .lookup-clear {
+            background: #e53e3e;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 12px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.2s;
+        }
+
+        .lookup-clear:hover {
+            background: #c53030;
+        }
+
+        .file-upload-area {
+            border: 2px dashed #cbd5e0;
+            border-radius: 8px;
+            padding: 32px;
+            text-align: center;
+            transition: all 0.2s;
+            cursor: pointer;
+            background-color: #f7fafc;
+        }
+
+        .file-upload-area:hover {
+            border-color: #667eea;
+            background-color: #edf2f7;
+        }
+
+        .file-upload-area.dragover {
+            border-color: #667eea;
+            background-color: #e6f0ff;
+        }
+
+        .file-upload-icon {
+            font-size: 48px;
+            color: #a0aec0;
+            margin-bottom: 16px;
+        }
+
+        .file-list {
+            margin-top: 16px;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            background-color: #edf2f7;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        .file-item-name {
+            flex: 1;
+            font-size: 14px;
+            color: #2d3748;
+        }
+
+        .file-item-remove {
+            background: #e53e3e;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 12px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.2s;
+        }
+
+        .file-item-remove:hover {
+            background: #c53030;
+        }
+
+        .btn {
+            padding: 14px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .alert {
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 24px;
+            display: none;
+            animation: slideUp 0.3s ease-in;
+            position: sticky;
+            bottom: 20px;
+            z-index: 1000;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert.active {
+            display: block;
+        }
+
+        .alert-success {
+            background-color: #c6f6d5;
+            color: #22543d;
+            border-left: 4px solid #38a169;
+        }
+
+        .alert-error {
+            background-color: #fed7d7;
+            color: #742a2a;
+            border-left: 4px solid #e53e3e;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .help-text {
+            font-size: 12px;
+            color: #718096;
+            margin-top: 4px;
+        }
+
+        .select-wrapper {
+            position: relative;
+        }
+
+        .select-wrapper::after {
+            content: '▼';
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: #a0aec0;
+            font-size: 10px;
+        }
+
+        select {
+            appearance: none;
+            padding-right: 40px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 24px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .logo {
+                font-size: 36px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🏗️</div>
+            <h1>Crear Nueva Tarea</h1>
+            <p class="subtitle">Otingar - Sistema de Gestión</p>
+        </div>
+
+        <form id="mainForm">
+            <!-- Nombre de la Tarea -->
+            <div class="form-group">
+                <label for="nombreTarea">
+                    Nombre de la Tarea <span class="required">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="nombreTarea" 
+                    name="nombre_tarea"
+                    placeholder="Ej: Revisar planos zona norte"
+                    required
+                >
+            </div>
+
+            <!-- Descripción -->
+            <div class="form-group">
+                <label for="descripcion">
+                    Descripción <span class="required">*</span>
+                </label>
+                <textarea 
+                    id="descripcion" 
+                    name="descripcion"
+                    placeholder="Describe detalladamente la tarea..."
+                    required
+                ></textarea>
+            </div>
+
+            <!-- Lookup 1: Tipo de Tarea -->
+            <div class="form-group">
+                <label for="tipoTarea">
+                    Tipo de Tarea
+                </label>
+                <div class="select-wrapper">
+                    <select id="tipoTarea" name="task_type_id">
+                        <option value="">Cargando tipos de tarea...</option>
+                    </select>
+                </div>
+                <p class="help-text">Por defecto se creará como "Tarea" si no seleccionas ninguna</p>
+            </div>
+
+            <!-- Lookup 2: Expediente Relacionado -->
+            <div class="form-group">
+                <label for="expedienteRelacionado">
+                    Expediente Relacionado
+                </label>
+                <div class="lookup-container">
+                    <div class="lookup-input-wrapper">
+                        <span class="lookup-icon">🔍</span>
+                        <input 
+                            type="text" 
+                            id="expedienteRelacionado" 
+                            name="expediente_search"
+                            placeholder="Buscar expediente..."
+                            autocomplete="off"
+                        >
+                    </div>
+                    <div id="expedienteResults" class="lookup-results"></div>
+                    <div id="expedienteSelected" class="lookup-selected">
+                        <span class="lookup-selected-text" id="expedienteSelectedText"></span>
+                        <button type="button" class="lookup-clear" id="expedienteClear">✕ Quitar</button>
+                    </div>
+                </div>
+                <input type="hidden" id="expedienteId" name="expediente_id">
+                <input type="hidden" id="expedienteListId" name="expediente_list_id">
+                <p class="help-text">Opcional: si no seleccionas expediente, la tarea irá al Capturador</p>
+            </div>
+
+            <!-- Lookup 3: Responsable -->
+            <div class="form-group">
+                <label for="responsable">
+                    Responsable
+                </label>
+                <div class="select-wrapper">
+                    <select id="responsable" name="assignee_id">
+                        <option value="">Cargando usuarios...</option>
+                    </select>
+                </div>
+                <p class="help-text">Opcional: puedes dejar sin asignar</p>
+            </div>
+
+            <!-- Fecha Límite -->
+            <div class="form-group">
+                <label for="fechaLimite">
+                    Fecha Límite
+                </label>
+                <input 
+                    type="date" 
+                    id="fechaLimite" 
+                    name="fecha_limite"
+                >
+                <p class="help-text">Opcional: fecha de vencimiento de la tarea</p>
+            </div>
+
+            <!-- Archivos Adjuntos -->
+            <div class="form-group">
+                <label>Archivos Adjuntos</label>
+                <div class="file-upload-area" id="fileUploadArea">
+                    <div class="file-upload-icon">📁</div>
+                    <p><strong>Arrastra archivos aquí</strong> o haz clic para seleccionar</p>
+                    <p class="help-text">Máximo 10 archivos, 10MB cada uno</p>
+                    <input 
+                        type="file" 
+                        id="fileInput" 
+                        name="archivos"
+                        multiple
+                        style="display: none;"
+                    >
+                </div>
+                <div id="fileList" class="file-list"></div>
+            </div>
+
+            <!-- Botón de Envío -->
+            <button type="submit" class="btn btn-primary" id="submitBtn">
+                Crear Tarea
+            </button>
+
+            <!-- Alertas de Confirmación -->
+            <div id="alertSuccess" class="alert alert-success">
+                ✓ Tarea creada correctamente
+            </div>
+
+            <div id="alertError" class="alert alert-error">
+                ✗ <span id="errorMessage">Error al crear la tarea</span>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // ============================================
+        // CONFIGURACIÓN
+        // ============================================
+        // IMPORTANTE: Esta URL debe estar en N8N_CORS_ORIGIN de Easypanel:
+        // https://bedmar70.github.io/otingar/formulario-otingar.html
+        
+        const CONFIG = {
+            // URLs de N8N
+            crearTareaUrl: 'https://n8n.escueladeefectividad.com/webhook/crear-tarea',
+            buscarExpedientesUrl: 'https://n8n.escueladeefectividad.com/webhook/buscar-expedientes',
+            obtenerTaskTypesUrl: 'https://n8n.escueladeefectividad.com/webhook/obtener-task-types',
+            obtenerUsuariosUrl: 'https://n8n.escueladeefectividad.com/webhook/obtener-usuarios',
+            
+            // Configuración
+            debounceDelay: 300,
+            maxFiles: 10,
+            maxFileSize: 10 * 1024 * 1024 // 10MB
+        };
+
+        // ============================================
+        // ELEMENTOS DOM
+        // ============================================
+        const form = document.getElementById('mainForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const alertSuccess = document.getElementById('alertSuccess');
+        const alertError = document.getElementById('alertError');
+        const errorMessage = document.getElementById('errorMessage');
+        const fileUploadArea = document.getElementById('fileUploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileList = document.getElementById('fileList');
+
+        // Tipo de Tarea
+        const tipoTareaSelect = document.getElementById('tipoTarea');
+
+        // Expediente
+        const expedienteInput = document.getElementById('expedienteRelacionado');
+        const expedienteResults = document.getElementById('expedienteResults');
+        const expedienteSelected = document.getElementById('expedienteSelected');
+        const expedienteSelectedText = document.getElementById('expedienteSelectedText');
+        const expedienteClear = document.getElementById('expedienteClear');
+        const expedienteIdInput = document.getElementById('expedienteId');
+        const expedienteListIdInput = document.getElementById('expedienteListId');
+
+        // Responsable
+        const responsableSelect = document.getElementById('responsable');
+
+        // ============================================
+        // ESTADO DE LA APLICACIÓN
+        // ============================================
+        let selectedFiles = [];
+        let debounceTimer = null;
+
+        // ============================================
+        // UTILIDADES
+        // ============================================
+        function showAlert(type, message = null) {
+            alertSuccess.classList.remove('active');
+            alertError.classList.remove('active');
+            
+            if (type === 'success') {
+                alertSuccess.classList.add('active');
+                // Scroll suave hasta la alerta en móviles
+                setTimeout(() => {
+                    alertSuccess.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 100);
+                setTimeout(() => alertSuccess.classList.remove('active'), 5000);
+            } else if (type === 'error') {
+                if (message) errorMessage.textContent = message;
+                alertError.classList.add('active');
+                // Scroll suave hasta la alerta en móviles
+                setTimeout(() => {
+                    alertError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 100);
+                setTimeout(() => alertError.classList.remove('active'), 5000);
+            }
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        // ============================================
+        // CARGAR LOOKUPS AL INICIO
+        // ============================================
+        async function cargarTaskTypes() {
+            try {
+                const response = await fetch(CONFIG.obtenerTaskTypesUrl, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+
+                if (data.task_types && data.task_types.length > 0) {
+                    tipoTareaSelect.innerHTML = data.task_types
+                        .map(type => `
+                            <option value="${type.id}">${type.name}</option>
+                        `)
+                        .join('');
+                } else {
+                    tipoTareaSelect.innerHTML = '<option value="">Tarea (por defecto)</option>';
+                }
+            } catch (error) {
+                console.error('Error al cargar task types:', error);
+                tipoTareaSelect.innerHTML = '<option value="">Tarea (por defecto)</option>';
+            }
+        }
+
+        async function cargarUsuarios() {
+            try {
+                const response = await fetch(CONFIG.obtenerUsuariosUrl);
+                const data = await response.json();
+
+                if (data.usuarios && data.usuarios.length > 0) {
+                    responsableSelect.innerHTML = '<option value="">Sin asignar</option>' +
+                        data.usuarios
+                            .map(usuario => `
+                                <option value="${usuario.id}">${usuario.name}</option>
+                            `)
+                            .join('');
+                } else {
+                    responsableSelect.innerHTML = '<option value="">Sin asignar</option>';
+                }
+            } catch (error) {
+                console.error('Error al cargar usuarios:', error);
+                responsableSelect.innerHTML = '<option value="">Sin asignar</option>';
+            }
+        }
+
+        // ============================================
+        // LOOKUP: EXPEDIENTES
+        // ============================================
+        async function buscarExpedientes(query) {
+            if (query.length < 2) {
+                expedienteResults.classList.remove('active');
+                return;
+            }
+
+            expedienteResults.innerHTML = '<div class="lookup-loading">Buscando expedientes...</div>';
+            expedienteResults.classList.add('active');
+
+            try {
+                const response = await fetch(CONFIG.buscarExpedientesUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ keyword: query })
+                });
+
+                const data = await response.json();
+
+                if (data.expedientes && data.expedientes.length > 0) {
+                    expedienteResults.innerHTML = data.expedientes
+                        .map(exp => `
+                            <div class="lookup-item" 
+                                 data-id="${exp.id}" 
+                                 data-name="${exp.name}"
+                                 data-list-id="${exp.list.id}">
+                                <div class="lookup-item-main">${exp.name}</div>
+                                <div class="lookup-item-sub">Lista: ${exp.list.name} • ${exp.status}</div>
+                            </div>
+                        `)
+                        .join('');
+                    
+                    expedienteResults.querySelectorAll('.lookup-item').forEach(item => {
+                        item.addEventListener('click', () => {
+                            seleccionarExpediente(
+                                item.dataset.id,
+                                item.dataset.name,
+                                item.dataset.listId
+                            );
+                        });
+                    });
+                } else {
+                    expedienteResults.innerHTML = '<div class="lookup-no-results">No se encontraron expedientes</div>';
+                }
+            } catch (error) {
+                console.error('Error al buscar expedientes:', error);
+                expedienteResults.innerHTML = '<div class="lookup-no-results">Error en la búsqueda</div>';
+            }
+        }
+
+        function seleccionarExpediente(id, name, listId) {
+            expedienteIdInput.value = id;
+            expedienteListIdInput.value = listId;
+            expedienteSelectedText.textContent = name;
+            expedienteInput.value = '';
+            expedienteResults.classList.remove('active');
+            expedienteSelected.classList.add('active');
+            expedienteInput.style.display = 'none';
+        }
+
+        expedienteInput.addEventListener('input', function(e) {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                buscarExpedientes(e.target.value);
+            }, CONFIG.debounceDelay);
+        });
+
+        expedienteClear.addEventListener('click', function() {
+            expedienteIdInput.value = '';
+            expedienteListIdInput.value = '';
+            expedienteInput.value = '';
+            expedienteSelected.classList.remove('active');
+            expedienteInput.style.display = 'block';
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!expedienteInput.contains(e.target) && !expedienteResults.contains(e.target)) {
+                expedienteResults.classList.remove('active');
+            }
+        });
+
+        // ============================================
+        // GESTIÓN DE ARCHIVOS
+        // ============================================
+        fileUploadArea.addEventListener('click', () => fileInput.click());
+
+        fileUploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileUploadArea.classList.add('dragover');
+        });
+
+        fileUploadArea.addEventListener('dragleave', () => {
+            fileUploadArea.classList.remove('dragover');
+        });
+
+        fileUploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileUploadArea.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        function handleFiles(files) {
+            const filesArray = Array.from(files);
+            
+            if (selectedFiles.length + filesArray.length > CONFIG.maxFiles) {
+                showAlert('error', `Máximo ${CONFIG.maxFiles} archivos permitidos`);
+                return;
+            }
+
+            for (let file of filesArray) {
+                if (file.size > CONFIG.maxFileSize) {
+                    showAlert('error', `El archivo ${file.name} excede el tamaño máximo de 10MB`);
+                    return;
+                }
+            }
+
+            selectedFiles = [...selectedFiles, ...filesArray];
+            renderFileList();
+        }
+
+        function renderFileList() {
+            if (selectedFiles.length === 0) {
+                fileList.innerHTML = '';
+                return;
+            }
+
+            fileList.innerHTML = selectedFiles
+                .map((file, index) => `
+                    <div class="file-item">
+                        <span class="file-item-name">
+                            📄 ${file.name} (${formatBytes(file.size)})
+                        </span>
+                        <button type="button" class="file-item-remove" data-index="${index}">
+                            Eliminar
+                        </button>
+                    </div>
+                `)
+                .join('');
+
+            fileList.querySelectorAll('.file-item-remove').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const index = parseInt(btn.dataset.index);
+                    selectedFiles.splice(index, 1);
+                    renderFileList();
+                });
+            });
+        }
+
+        // ============================================
+        // ENVÍO DEL FORMULARIO
+        // ============================================
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner"></span>Creando tarea...';
+
+            try {
+                const formData = new FormData();
+                
+                // Campos básicos
+                formData.append('nombre_tarea', document.getElementById('nombreTarea').value);
+                formData.append('descripcion', document.getElementById('descripcion').value);
+
+                // Task Type
+                const taskTypeId = tipoTareaSelect.value;
+                if (taskTypeId) {
+                    formData.append('task_type_id', taskTypeId);
+                }
+
+                // Expediente (opcional)
+                if (expedienteIdInput.value) {
+                    formData.append('expediente_id', expedienteIdInput.value);
+                    formData.append('expediente_list_id', expedienteListIdInput.value);
+                    formData.append('expediente_name', expedienteSelectedText.textContent);
+                }
+
+                // Responsable (opcional)
+                const assigneeId = responsableSelect.value;
+                if (assigneeId) {
+                    formData.append('assignee_id', assigneeId);
+                }
+
+                // Fecha límite (opcional)
+                const fechaLimite = document.getElementById('fechaLimite').value;
+                if (fechaLimite) {
+                    formData.append('fecha_limite', fechaLimite);
+                }
+
+                // Archivos
+                selectedFiles.forEach((file, index) => {
+                    formData.append(`archivo_${index}`, file);
+                });
+                formData.append('total_archivos', selectedFiles.length);
+
+                // Enviar a N8N
+                const response = await fetch(CONFIG.crearTareaUrl, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error en el servidor');
+                }
+
+                const result = await response.json();
+
+                // Éxito
+                showAlert('success');
+                form.reset();
+                selectedFiles = [];
+                renderFileList();
+                expedienteIdInput.value = '';
+                expedienteListIdInput.value = '';
+                expedienteSelected.classList.remove('active');
+                expedienteInput.style.display = 'block';
+
+                // Recargar dropdowns
+                await cargarTaskTypes();
+                await cargarUsuarios();
+
+            } catch (error) {
+                console.error('Error al crear tarea:', error);
+                showAlert('error', 'Error al crear la tarea. Por favor, inténtelo de nuevo.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Crear Tarea';
+            }
+        });
+
+        // ============================================
+        // INICIALIZACIÓN
+        // ============================================
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('🚀 Formulario Otingar inicializado');
+            
+            // Cargar lookups
+            await Promise.all([
+                cargarTaskTypes(),
+                cargarUsuarios()
+            ]);
+
+            console.log('✅ Lookups cargados correctamente');
+        });
+    </script>
+</body>
+</html>
