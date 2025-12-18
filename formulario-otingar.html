@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulario Otingar - Crear Tarea</title>
+    <title>Formulario Otingar - Crear Elementos</title>
     <style>
         * {
             margin: 0;
@@ -326,10 +326,15 @@
             cursor: not-allowed;
         }
 
+        /* ALERTAS MOVIDAS AL FINAL */
+        .alert-container {
+            margin-top: 20px;
+        }
+
         .alert {
             padding: 16px;
             border-radius: 8px;
-            margin-bottom: 24px;
+            margin-bottom: 16px;
             display: none;
             animation: slideDown 0.3s ease-in;
         }
@@ -425,16 +430,8 @@
     <div class="container">
         <div class="header">
             <div class="logo">🏗️</div>
-            <h1>Crear Nueva Tarea</h1>
+            <h1>Crear Nuevos elementos ClickUp</h1>
             <p class="subtitle">Otingar - Sistema de Gestión</p>
-        </div>
-
-        <div id="alertSuccess" class="alert alert-success">
-            ✓ Tarea creada correctamente
-        </div>
-
-        <div id="alertError" class="alert alert-error">
-            ✗ <span id="errorMessage">Error al crear la tarea</span>
         </div>
 
         <form id="mainForm">
@@ -577,6 +574,16 @@
             <button type="submit" class="btn btn-primary" id="submitBtn">
                 Crear Tarea
             </button>
+
+            <div class="alert-container">
+                <div id="alertSuccess" class="alert alert-success">
+                    ✓ Tarea creada correctamente
+                </div>
+
+                <div id="alertError" class="alert alert-error">
+                    ✗ <span id="errorMessage">Error al crear la tarea</span>
+                </div>
+            </div>
         </form>
     </div>
 
@@ -644,10 +651,13 @@
             
             if (type === 'success') {
                 alertSuccess.classList.add('active');
+                // Auto-scroll al mensaje en móviles
+                alertSuccess.scrollIntoView({ behavior: 'smooth', block: 'end' });
                 setTimeout(() => alertSuccess.classList.remove('active'), 5000);
             } else if (type === 'error') {
                 if (message) errorMessage.textContent = message;
                 alertError.classList.add('active');
+                alertError.scrollIntoView({ behavior: 'smooth', block: 'end' });
                 setTimeout(() => alertError.classList.remove('active'), 5000);
             }
         }
@@ -706,7 +716,16 @@
                 if (data.task_types && data.task_types.length > 0) {
                     tipoTareaSelect.innerHTML = data.task_types
                         .map(type => {
-                            const isSelected = type.name === 'Tarea' ? 'selected' : '';
+                            // LÓGICA MEJORADA: Buscar "Tarea" o "Tarea URB" o contener la palabra Tarea
+                            // Priorizamos la coincidencia exacta o que contenga "Tarea"
+                            let isSelected = '';
+                            const lowerName = type.name.toLowerCase();
+                            
+                            // Si se llama "Tarea" o "Tarea URB", lo marcamos como selected
+                            if (lowerName === 'tarea' || lowerName === 'tarea urb') {
+                                isSelected = 'selected';
+                            }
+                            
                             return `<option value="${type.id}" ${isSelected}>${type.name}</option>`;
                         })
                         .join('');
