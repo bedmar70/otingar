@@ -707,36 +707,40 @@
         // CARGAR LOOKUPS AL INICIO
         // ============================================
         async function cargarTaskTypes() {
-            try {
-                const response = await fetch(CONFIG.obtenerTaskTypesUrl, {
-                    method: 'POST'
-                });
-                const data = await response.json();
+                    try {
+                        const response = await fetch(CONFIG.obtenerTaskTypesUrl, {
+                            method: 'POST'
+                        });
+                        const data = await response.json();
         
-                // 1. Opción Tarea (Estándar) manual al principio
-                let optionsHtml = '<option value="" selected>Tarea</option>';
+                        // 1. Opción Tarea (Estándar) manual al principio y seleccionada
+                        let optionsHtml = '<option value="" selected>Tarea (Estándar)</option>';
         
-                // 2. Añadir el resto de opciones que vienen de ClickUp
-                if (data.task_types && data.task_types.length > 0) {
-                    optionsHtml += data.task_types
-                        .map(type => {
-                            // Si el nombre es raro (ej: 00_Fase), lo mostramos tal cual o lo filtras si quieres
-                            return `<option value="${type.id}">${type.name}</option>`;
-                        })
-                        .join('');
-                }
-                
-                tipoTareaSelect.innerHTML = optionsHtml;
-                
-                // Disparar evento para asegurar que la UI se actualice
-                const event = new Event('change');
-                tipoTareaSelect.dispatchEvent(event);
+                        // 2. Filtrar y añadir el resto
+                        if (data.task_types && data.task_types.length > 0) {
+                            optionsHtml += data.task_types
+                                .filter(type => {
+                                    // FILTRO: Ocultamos "Tarea URB" o "00_Fase" si confunden
+                                    // Si quieres ocultar alguno, añade su nombre aquí en minúsculas
+                                    const name = type.name.toLowerCase();
+                                    return name !== 'tarea urb' && name !== '00_fase' && name !== 'tarea'; 
+                                })
+                                .map(type => {
+                                    return `<option value="${type.id}">${type.name}</option>`;
+                                })
+                                .join('');
+                        }
+                        
+                        tipoTareaSelect.innerHTML = optionsHtml;
+                        
+                        // Forzar actualización visual
+                        const event = new Event('change');
+                        tipoTareaSelect.dispatchEvent(event);
         
-            } catch (error) {
-                console.error('Error al cargar task types:', error);
-                // Fallback si falla la API
-                tipoTareaSelect.innerHTML = '<option value="" selected>Tarea</option>';
-            }
+                    } catch (error) {
+                        console.error('Error al cargar task types:', error);
+                        tipoTareaSelect.innerHTML = '<option value="" selected>Tarea (Estándar)</option>';
+                    }
         }
 
         async function cargarUsuarios() {
