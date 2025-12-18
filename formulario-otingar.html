@@ -417,7 +417,6 @@
         </div>
 
         <form id="mainForm">
-            <!-- Nombre de la Tarea -->
             <div class="form-group">
                 <label for="nombreTarea">
                     Nombre de la Tarea <span class="required">*</span>
@@ -431,7 +430,6 @@
                 >
             </div>
 
-            <!-- Descripción -->
             <div class="form-group">
                 <label for="descripcion">
                     Descripción <span class="required">*</span>
@@ -444,7 +442,6 @@
                 ></textarea>
             </div>
 
-            <!-- Lookup 1: Tipo de Tarea -->
             <div class="form-group">
                 <label for="tipoTarea">
                     Tipo de Tarea
@@ -457,7 +454,6 @@
                 <p class="help-text">Por defecto se creará como "Tarea" si no seleccionas ninguna</p>
             </div>
 
-            <!-- Lookup 2: Expediente Relacionado -->
             <div class="form-group">
                 <label for="expedienteRelacionado">
                     Expediente Relacionado
@@ -484,7 +480,6 @@
                 <p class="help-text">Opcional: si no seleccionas expediente, la tarea irá al Capturador</p>
             </div>
 
-            <!-- Lookup 3: Responsable -->
             <div class="form-group">
                 <label for="responsable">
                     Responsable
@@ -497,7 +492,6 @@
                 <p class="help-text">Opcional: puedes dejar sin asignar</p>
             </div>
 
-            <!-- Fecha Límite -->
             <div class="form-group">
                 <label for="fechaLimite">
                     Fecha Límite
@@ -510,7 +504,6 @@
                 <p class="help-text">Opcional: fecha de vencimiento de la tarea</p>
             </div>
 
-            <!-- Archivos Adjuntos -->
             <div class="form-group">
                 <label>Archivos Adjuntos</label>
                 <div class="file-upload-area" id="fileUploadArea">
@@ -528,7 +521,6 @@
                 <div id="fileList" class="file-list"></div>
             </div>
 
-            <!-- Botón de Envío -->
             <button type="submit" class="btn btn-primary" id="submitBtn">
                 Crear Tarea
             </button>
@@ -637,7 +629,10 @@
 
         async function cargarUsuarios() {
             try {
-                const response = await fetch(CONFIG.obtenerUsuariosUrl);
+                // MODIFICADO: Se añade { method: 'POST' } para coincidir con la configuración del Webhook en N8N
+                const response = await fetch(CONFIG.obtenerUsuariosUrl, {
+                    method: 'POST'
+                });
                 const data = await response.json();
 
                 if (data.usuarios && data.usuarios.length > 0) {
