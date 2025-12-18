@@ -108,6 +108,17 @@
             min-height: 100px;
         }
 
+        /* Estilos específicos para la sección oculta de gastos */
+        #bloqueGastos {
+            display: none; /* Oculto por defecto */
+            background-color: #f0f4ff;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #c3dafe;
+            margin-bottom: 24px;
+            animation: slideDown 0.3s ease-in-out;
+        }
+
         .lookup-container {
             position: relative;
         }
@@ -451,7 +462,23 @@
                         <option value="">Cargando tipos de tarea...</option>
                     </select>
                 </div>
-                <p class="help-text">Por defecto se creará como "Tarea" si no seleccionas ninguna</p>
+                <p class="help-text">Si seleccionas "Gasto", deberás especificar el tipo.</p>
+            </div>
+
+            <div id="bloqueGastos" class="form-group">
+                <label for="tipoGastoSelect">
+                    Detalle del Gasto <span class="required">*</span>
+                </label>
+                <div class="select-wrapper">
+                    <select id="tipoGastoSelect" name="tipo_gasto_value">
+                        <option value="">-- Selecciona el tipo de gasto --</option>
+                        <option value="be8c9f4e-a05b-47a7-87e4-7ae49a3e1736">KMS</option>
+                        <option value="a29ded5a-543e-47f1-bef4-c5ba6eafd62c">COMIDAS</option>
+                        <option value="4c4176fa-8dd2-46ad-92e5-edb96d4d0411">ALOJAMIENTO</option>
+                        <option value="9b19e9d7-3fb9-44a2-b79b-34eff81c2860">OTROS</option>
+                    </select>
+                </div>
+                <input type="hidden" name="tipo_gasto_field_id" value="81472277-44f0-434b-aa89-93b64cfd39b6">
             </div>
 
             <div class="form-group">
@@ -532,7 +559,7 @@
         // CONFIGURACIÓN
         // ============================================
         const CONFIG = {
-            // URLs de N8N - CAMBIAR SI ES NECESARIO
+            // URLs de N8N
             crearTareaUrl: 'https://n8n.escueladeefectividad.com/webhook/crear-tarea',
             buscarExpedientesUrl: 'https://n8n.escueladeefectividad.com/webhook/buscar-expedientes',
             obtenerTaskTypesUrl: 'https://n8n.escueladeefectividad.com/webhook/obtener-task-types',
@@ -556,8 +583,10 @@
         const fileInput = document.getElementById('fileInput');
         const fileList = document.getElementById('fileList');
 
-        // Tipo de Tarea
+        // Tipo de Tarea y Gastos
         const tipoTareaSelect = document.getElementById('tipoTarea');
+        const bloqueGastos = document.getElementById('bloqueGastos');
+        const tipoGastoSelect = document.getElementById('tipoGastoSelect');
 
         // Expediente
         const expedienteInput = document.getElementById('expedienteRelacionado');
@@ -603,6 +632,26 @@
         }
 
         // ============================================
+        // LÓGICA DE TIPO DE TAREA Y GASTOS
+        // ============================================
+        
+        // Listener para detectar cambios en el tipo de tarea
+        tipoTareaSelect.addEventListener('change', function() {
+            // Obtenemos el texto de la opción seleccionada (Ej: "Gasto", "Tarea", etc)
+            const selectedText = tipoTareaSelect.options[tipoTareaSelect.selectedIndex].text;
+            
+            // Verificamos si contiene la palabra "Gasto" (ignorando mayúsculas/minúsculas)
+            if (selectedText.toLowerCase().includes('gasto')) {
+                bloqueGastos.style.display = 'block';
+                tipoGastoSelect.required = true; // Hacemos obligatorio el campo
+            } else {
+                bloqueGastos.style.display = 'none';
+                tipoGastoSelect.required = false;
+                tipoGastoSelect.value = ''; // Limpiamos la selección
+            }
+        });
+
+        // ============================================
         // CARGAR LOOKUPS AL INICIO
         // ============================================
         async function cargarTaskTypes() {
@@ -614,10 +663,17 @@
 
                 if (data.task_types && data.task_types.length > 0) {
                     tipoTareaSelect.innerHTML = data.task_types
-                        .map(type => `
-                            <option value="${type.id}">${type.name}</option>
-                        `)
+                        .map(type => {
+                            // MODIFICACIÓN: Si el nombre es 'Tarea', lo marcamos como selected
+                            const isSelected = type.name === 'Tarea' ? 'selected' : '';
+                            return `<option value="${type.id}" ${isSelected}>${type.name}</option>`;
+                        })
                         .join('');
+                    
+                    // Disparamos el evento change manualmente para verificar si la opción por defecto es Gasto
+                    const event = new Event('change');
+                    tipoTareaSelect.dispatchEvent(event);
+
                 } else {
                     tipoTareaSelect.innerHTML = '<option value="">Tarea (por defecto)</option>';
                 }
@@ -629,7 +685,6 @@
 
         async function cargarUsuarios() {
             try {
-                // MODIFICADO: Se añade { method: 'POST' } para coincidir con la configuración del Webhook en N8N
                 const response = await fetch(CONFIG.obtenerUsuariosUrl, {
                     method: 'POST'
                 });
@@ -829,6 +884,12 @@
                     formData.append('task_type_id', taskTypeId);
                 }
 
+                // GASTOS (Si está visible y seleccionado)
+                if (bloqueGastos.style.display !== 'none' && tipoGastoSelect.value) {
+                    formData.append('custom_field_gasto_id', '81472277-44f0-434b-aa89-93b64cfd39b6');
+                    formData.append('custom_field_gasto_value', tipoGastoSelect.value);
+                }
+
                 // Expediente (opcional)
                 if (expedienteIdInput.value) {
                     formData.append('expediente_id', expedienteIdInput.value);
@@ -875,6 +936,9 @@
                 expedienteListIdInput.value = '';
                 expedienteSelected.classList.remove('active');
                 expedienteInput.style.display = 'block';
+                
+                // Ocultar gastos
+                bloqueGastos.style.display = 'none';
 
                 // Recargar dropdowns
                 await cargarTaskTypes();
