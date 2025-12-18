@@ -83,6 +83,7 @@
         input[type="text"],
         input[type="email"],
         input[type="date"],
+        input[type="number"],
         select,
         textarea {
             width: 100%;
@@ -117,6 +118,12 @@
             border: 1px solid #c3dafe;
             margin-bottom: 24px;
             animation: slideDown 0.3s ease-in-out;
+        }
+
+        .gastos-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
         }
 
         .lookup-container {
@@ -408,6 +415,9 @@
             .logo {
                 font-size: 36px;
             }
+            .gastos-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -462,23 +472,39 @@
                         <option value="">Cargando tipos de tarea...</option>
                     </select>
                 </div>
-                <p class="help-text">Si seleccionas "Gasto", deberás especificar el tipo.</p>
+                <p class="help-text">Si seleccionas "Gasto", deberás especificar los detalles.</p>
             </div>
 
             <div id="bloqueGastos" class="form-group">
-                <label for="tipoGastoSelect">
-                    Detalle del Gasto <span class="required">*</span>
-                </label>
-                <div class="select-wrapper">
-                    <select id="tipoGastoSelect" name="tipo_gasto_value">
-                        <option value="">-- Selecciona el tipo de gasto --</option>
-                        <option value="be8c9f4e-a05b-47a7-87e4-7ae49a3e1736">KMS</option>
-                        <option value="a29ded5a-543e-47f1-bef4-c5ba6eafd62c">COMIDAS</option>
-                        <option value="4c4176fa-8dd2-46ad-92e5-edb96d4d0411">ALOJAMIENTO</option>
-                        <option value="9b19e9d7-3fb9-44a2-b79b-34eff81c2860">OTROS</option>
-                    </select>
+                <div class="form-group">
+                    <label for="tipoGastoSelect">
+                        Detalle del Gasto <span class="required">*</span>
+                    </label>
+                    <div class="select-wrapper">
+                        <select id="tipoGastoSelect" name="tipo_gasto_value">
+                            <option value="">-- Selecciona el tipo de gasto --</option>
+                            <option value="be8c9f4e-a05b-47a7-87e4-7ae49a3e1736">KMS</option>
+                            <option value="a29ded5a-543e-47f1-bef4-c5ba6eafd62c">COMIDAS</option>
+                            <option value="4c4176fa-8dd2-46ad-92e5-edb96d4d0411">ALOJAMIENTO</option>
+                            <option value="9b19e9d7-3fb9-44a2-b79b-34eff81c2860">OTROS</option>
+                        </select>
+                    </div>
+                    <input type="hidden" name="tipo_gasto_field_id" value="81472277-44f0-434b-aa89-93b64cfd39b6">
                 </div>
-                <input type="hidden" name="tipo_gasto_field_id" value="81472277-44f0-434b-aa89-93b64cfd39b6">
+
+                <div class="gastos-grid">
+                    <div class="form-group">
+                        <label for="importeGasto">Importe (€)</label>
+                        <input type="number" id="importeGasto" step="0.01" placeholder="0.00">
+                        <input type="hidden" name="custom_field_importe_id" value="ccf0cff1-3c0a-46d5-b910-ff0e6316e154">
+                    </div>
+
+                    <div class="form-group" id="kmsWrapper" style="display: none;">
+                        <label for="kmsGasto">Kilómetros</label>
+                        <input type="number" id="kmsGasto" step="0.1" placeholder="0">
+                        <input type="hidden" name="custom_field_kms_id" value="450df9dc-d862-4059-a24e-eadcc69087d6">
+                    </div>
+                </div>
             </div>
 
             <div class="form-group">
@@ -587,6 +613,9 @@
         const tipoTareaSelect = document.getElementById('tipoTarea');
         const bloqueGastos = document.getElementById('bloqueGastos');
         const tipoGastoSelect = document.getElementById('tipoGastoSelect');
+        const kmsWrapper = document.getElementById('kmsWrapper');
+        const kmsInput = document.getElementById('kmsGasto');
+        const importeInput = document.getElementById('importeGasto');
 
         // Expediente
         const expedienteInput = document.getElementById('expedienteRelacionado');
@@ -637,17 +666,30 @@
         
         // Listener para detectar cambios en el tipo de tarea
         tipoTareaSelect.addEventListener('change', function() {
-            // Obtenemos el texto de la opción seleccionada (Ej: "Gasto", "Tarea", etc)
             const selectedText = tipoTareaSelect.options[tipoTareaSelect.selectedIndex].text;
             
-            // Verificamos si contiene la palabra "Gasto" (ignorando mayúsculas/minúsculas)
             if (selectedText.toLowerCase().includes('gasto')) {
                 bloqueGastos.style.display = 'block';
-                tipoGastoSelect.required = true; // Hacemos obligatorio el campo
+                tipoGastoSelect.required = true;
             } else {
                 bloqueGastos.style.display = 'none';
                 tipoGastoSelect.required = false;
-                tipoGastoSelect.value = ''; // Limpiamos la selección
+                tipoGastoSelect.value = '';
+                // Limpiar campos gastos
+                kmsInput.value = '';
+                importeInput.value = '';
+                kmsWrapper.style.display = 'none';
+            }
+        });
+
+        // Listener para tipo de gasto específico (Mostrar/Ocultar KMS)
+        tipoGastoSelect.addEventListener('change', function() {
+            // El valor 'be8c9f4e-a05b-47a7-87e4-7ae49a3e1736' corresponde a 'KMS'
+            if (this.value === 'be8c9f4e-a05b-47a7-87e4-7ae49a3e1736') {
+                kmsWrapper.style.display = 'block';
+            } else {
+                kmsWrapper.style.display = 'none';
+                kmsInput.value = '';
             }
         });
 
@@ -664,13 +706,11 @@
                 if (data.task_types && data.task_types.length > 0) {
                     tipoTareaSelect.innerHTML = data.task_types
                         .map(type => {
-                            // MODIFICACIÓN: Si el nombre es 'Tarea', lo marcamos como selected
                             const isSelected = type.name === 'Tarea' ? 'selected' : '';
                             return `<option value="${type.id}" ${isSelected}>${type.name}</option>`;
                         })
                         .join('');
                     
-                    // Disparamos el evento change manualmente para verificar si la opción por defecto es Gasto
                     const event = new Event('change');
                     tipoTareaSelect.dispatchEvent(event);
 
@@ -886,8 +926,23 @@
 
                 // GASTOS (Si está visible y seleccionado)
                 if (bloqueGastos.style.display !== 'none' && tipoGastoSelect.value) {
+                    // Tipo Gasto
                     formData.append('custom_field_gasto_id', '81472277-44f0-434b-aa89-93b64cfd39b6');
                     formData.append('custom_field_gasto_value', tipoGastoSelect.value);
+
+                    // Importe Gasto
+                    const importeVal = document.getElementById('importeGasto').value;
+                    if (importeVal) {
+                        formData.append('custom_field_importe_id', 'ccf0cff1-3c0a-46d5-b910-ff0e6316e154');
+                        formData.append('custom_field_importe_value', importeVal);
+                    }
+
+                    // KMS (Solo si está visible y tiene valor)
+                    const kmsVal = document.getElementById('kmsGasto').value;
+                    if (kmsWrapper.style.display !== 'none' && kmsVal) {
+                        formData.append('custom_field_kms_id', '450df9dc-d862-4059-a24e-eadcc69087d6');
+                        formData.append('custom_field_kms_value', kmsVal);
+                    }
                 }
 
                 // Expediente (opcional)
@@ -937,8 +992,9 @@
                 expedienteSelected.classList.remove('active');
                 expedienteInput.style.display = 'block';
                 
-                // Ocultar gastos
+                // Reset visual
                 bloqueGastos.style.display = 'none';
+                kmsWrapper.style.display = 'none';
 
                 // Recargar dropdowns
                 await cargarTaskTypes();
