@@ -712,33 +712,30 @@
                     method: 'POST'
                 });
                 const data = await response.json();
-
+        
+                // 1. Opción Tarea (Estándar) manual al principio
+                let optionsHtml = '<option value="" selected>Tarea</option>';
+        
+                // 2. Añadir el resto de opciones que vienen de ClickUp
                 if (data.task_types && data.task_types.length > 0) {
-                    tipoTareaSelect.innerHTML = data.task_types
+                    optionsHtml += data.task_types
                         .map(type => {
-                            // LÓGICA MEJORADA: Buscar "Tarea" o "Tarea URB" o contener la palabra Tarea
-                            // Priorizamos la coincidencia exacta o que contenga "Tarea"
-                            let isSelected = '';
-                            const lowerName = type.name.toLowerCase();
-                            
-                            // Si se llama "Tarea" o "Tarea URB", lo marcamos como selected
-                            if (lowerName === 'tarea' || lowerName === 'tarea urb') {
-                                isSelected = 'selected';
-                            }
-                            
-                            return `<option value="${type.id}" ${isSelected}>${type.name}</option>`;
+                            // Si el nombre es raro (ej: 00_Fase), lo mostramos tal cual o lo filtras si quieres
+                            return `<option value="${type.id}">${type.name}</option>`;
                         })
                         .join('');
-                    
-                    const event = new Event('change');
-                    tipoTareaSelect.dispatchEvent(event);
-
-                } else {
-                    tipoTareaSelect.innerHTML = '<option value="">Tarea (por defecto)</option>';
                 }
+                
+                tipoTareaSelect.innerHTML = optionsHtml;
+                
+                // Disparar evento para asegurar que la UI se actualice
+                const event = new Event('change');
+                tipoTareaSelect.dispatchEvent(event);
+        
             } catch (error) {
                 console.error('Error al cargar task types:', error);
-                tipoTareaSelect.innerHTML = '<option value="">Tarea (por defecto)</option>';
+                // Fallback si falla la API
+                tipoTareaSelect.innerHTML = '<option value="" selected>Tarea</option>';
             }
         }
 
