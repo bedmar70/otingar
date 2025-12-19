@@ -5,292 +5,315 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formulario Otingar - Crear Elementos</title>
     <style>
-        /* ================= ESTILOS CSS ================= */
+        /* ESTILOS CSS */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .container {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 800px;
-            width: 100%;
-            padding: 40px;
-            animation: fadeIn 0.3s ease-in;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .header { text-align: center; margin-bottom: 32px; }
-        .logo { font-size: 48px; margin-bottom: 16px; }
-        h1 { color: #1a202c; font-size: 28px; margin-bottom: 8px; font-weight: 700; }
-        .subtitle { color: #718096; font-size: 14px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; display: flex; justify-content: center; align-items: center; }
+        .container { background: white; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-width: 800px; width: 100%; padding: 40px; }
+        h1 { color: #1a202c; font-size: 28px; font-weight: 700; margin-bottom: 8px; text-align: center; }
+        .logo { font-size: 48px; text-align: center; display: block; margin-bottom: 16px; }
+        .subtitle { color: #718096; font-size: 14px; text-align: center; margin-bottom: 32px; display: block;}
         .form-group { margin-bottom: 24px; }
         label { display: block; color: #2d3748; font-weight: 600; margin-bottom: 8px; font-size: 14px; }
         .required { color: #e53e3e; }
-        input[type="text"], input[type="email"], input[type="date"], input[type="number"], select, textarea {
-            width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;
-            transition: all 0.2s; font-family: inherit; background-color: white;
-        }
-        input:focus, select:focus, textarea:focus {
-            outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-        textarea { resize: vertical; min-height: 100px; }
+        input, select, textarea { width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; background: white; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #667eea; }
         
         /* GASTOS */
-        #bloqueGastos {
-            display: none; background-color: #f0f4ff; padding: 20px; border-radius: 8px;
-            border: 1px solid #c3dafe; margin-bottom: 24px; animation: slideDown 0.3s ease-in-out;
-        }
+        #bloqueGastos { display: none; background: #f0f4ff; padding: 20px; border-radius: 8px; border: 1px solid #c3dafe; margin-bottom: 24px; }
         .gastos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        
-        /* LOOKUP EXPEDIENTES */
-        .lookup-container, .lookup-input-wrapper { position: relative; }
-        .lookup-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #a0aec0; font-size: 16px; }
-        .lookup-input-wrapper input { padding-left: 40px; }
-        .lookup-results {
-            position: absolute; top: 100%; left: 0; right: 0; background: white; border: 2px solid #e2e8f0;
-            border-top: none; border-radius: 0 0 8px 8px; max-height: 250px; overflow-y: auto; z-index: 1000;
-            display: none; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        }
+
+        /* LOOKUP */
+        .lookup-container { position: relative; }
+        .lookup-results { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 2px solid #e2e8f0; border-top: none; max-height: 200px; overflow-y: auto; z-index: 100; display: none; }
         .lookup-results.active { display: block; }
-        .lookup-item { padding: 12px 16px; cursor: pointer; transition: background-color 0.15s; border-bottom: 1px solid #f7fafc; }
-        .lookup-item:hover { background-color: #edf2f7; }
-        .lookup-item-main { font-weight: 500; color: #2d3748; }
-        .lookup-item-sub { font-size: 12px; color: #718096; margin-top: 2px; }
-        .lookup-loading, .lookup-no-results { padding: 12px 16px; color: #718096; text-align: center; }
-        .lookup-selected { display: none; padding: 8px 12px; background-color: #edf2f7; border-radius: 6px; margin-top: 8px; align-items: center; justify-content: space-between; }
+        .lookup-item { padding: 10px; cursor: pointer; border-bottom: 1px solid #eee; }
+        .lookup-item:hover { background: #f7fafc; }
+        .lookup-selected { display: none; background: #edf2f7; padding: 8px; margin-top: 5px; border-radius: 4px; justify-content: space-between; align-items: center; }
         .lookup-selected.active { display: flex; }
-        .lookup-selected-text { font-size: 14px; color: #2d3748; }
-        .lookup-clear { background: #e53e3e; color: white; border: none; border-radius: 4px; padding: 4px 12px; cursor: pointer; font-size: 12px; transition: background-color 0.2s; }
-        .lookup-clear:hover { background: #c53030; }
+        .lookup-clear { background: #e53e3e; color: white; border: none; padding: 2px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; }
 
-        /* ARCHIVOS */
-        .file-upload-area { border: 2px dashed #cbd5e0; border-radius: 8px; padding: 32px; text-align: center; transition: all 0.2s; cursor: pointer; background-color: #f7fafc; }
-        .file-upload-area:hover, .file-upload-area.dragover { border-color: #667eea; background-color: #edf2f7; }
-        .file-upload-icon { font-size: 48px; color: #a0aec0; margin-bottom: 16px; }
-        .file-list { margin-top: 16px; }
-        .file-item { display: flex; align-items: center; justify-content: space-between; padding: 12px; background-color: #edf2f7; border-radius: 6px; margin-bottom: 8px; }
-        .file-item-name { flex: 1; font-size: 14px; color: #2d3748; }
-        .file-item-remove { background: #e53e3e; color: white; border: none; border-radius: 4px; padding: 4px 12px; cursor: pointer; font-size: 12px; transition: background-color 0.2s; }
-        .file-item-remove:hover { background: #c53030; }
-
-        /* BOTONES Y ALERTAS */
-        .btn { padding: 14px 32px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s; width: 100%; }
-        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
-        .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3); }
-        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
-        .alert-container { margin-top: 20px; }
-        .alert { padding: 16px; border-radius: 8px; margin-bottom: 16px; display: none; animation: slideDown 0.3s ease-in; }
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        .alert.active { display: block; }
-        .alert-success { background-color: #c6f6d5; color: #22543d; border-left: 4px solid #38a169; }
-        .alert-error { background-color: #fed7d7; color: #742a2a; border-left: 4px solid #e53e3e; }
-        .spinner { display: inline-block; width: 16px; height: 16px; border: 3px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top-color: white; animation: spin 0.8s linear infinite; margin-right: 8px; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .help-text { font-size: 12px; color: #718096; margin-top: 4px; }
-        .select-wrapper { position: relative; }
-        .select-wrapper::after { content: '▼'; position: absolute; right: 16px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #a0aec0; font-size: 10px; }
-        select { appearance: none; padding-right: 40px; cursor: pointer; }
-        @media (max-width: 640px) { .container { padding: 24px; } .gastos-grid { grid-template-columns: 1fr; } }
+        /* BUTTONS & ALERTS */
+        .btn { padding: 14px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%; }
+        .btn:disabled { opacity: 0.7; cursor: wait; }
         
-        /* ESTILO EXTRA PARA CAMPO HORAS */
-        .mb-4 { margin-bottom: 1rem; }
-        .relative { position: relative; }
+        /* NUEVOS ESTILOS ALERTAS MEJORADOS */
+        .alert { padding: 15px; border-radius: 8px; margin-top: 20px; display: none; line-height: 1.5; }
+        .alert-success { background: #c6f6d5; color: #22543d; border-left: 5px solid #38a169; }
+        .alert-error { background: #fed7d7; color: #742a2a; border-left: 5px solid #e53e3e; }
+        .alert.active { display: block; }
+        
+        /* HELPERS */
+        .help-text { font-size: 12px; color: #718096; margin-top: 4px; }
+        .file-upload-area { border: 2px dashed #cbd5e0; padding: 20px; text-align: center; border-radius: 8px; cursor: pointer; }
+        .file-list { margin-top: 10px; font-size: 13px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <div class="logo">🏗️</div>
-            <h1>Crear Nuevos elementos ClickUp V.1.2.</h1>
-            <p class="subtitle">Otingar - Sistema de Gestión</p>
-        </div>
+        <span class="logo">🏗️</span>
+        <h1>Crear Elemento ClickUp</h1>
+        <span class="subtitle">Otingar - Sistema de Gestión</span>
 
         <form id="mainForm">
             <div class="form-group">
-                <label for="nombreTarea">Nombre de la Tarea <span class="required">*</span></label>
-                <input type="text" id="nombreTarea" name="nombre_tarea" placeholder="Ej: Revisar planos zona norte" required>
+                <label>Nombre de la Tarea <span class="required">*</span></label>
+                <input type="text" id="nombreTarea" name="nombre_tarea" required placeholder="Resumen breve...">
             </div>
 
             <div class="form-group">
-                <label for="descripcion">Descripción <span class="required">*</span></label>
-                <textarea id="descripcion" name="descripcion" placeholder="Describe detalladamente la tarea..." required></textarea>
+                <label>Descripción <span class="required">*</span></label>
+                <textarea id="descripcion" name="descripcion" required placeholder="Detalles..."></textarea>
             </div>
 
             <div class="form-group">
-                <label for="tipoTarea">Tipo de Tarea</label>
-                <div class="select-wrapper">
-                    <select id="tipoTarea" name="task_type_id">
-                        <option value="" selected>Tarea (Estándar)</option>
-                        <option value="1022">Gasto 🛒</option>
+                <label>Tipo de Tarea</label>
+                <select id="tipoTarea" name="task_type_id">
+                    <option value="" selected>Tarea (Estándar)</option>
+                    <option value="1022">Gasto 🛒</option>
+                </select>
+                <p class="help-text">Selecciona 'Gasto' para imputar costes.</p>
+            </div>
+
+            <div id="bloqueGastos">
+                <div class="form-group">
+                    <label>Concepto Gasto</label>
+                    <select id="tipoGastoSelect">
+                        <option value="">-- Seleccionar --</option>
+                        <option value="be8c9f4e-a05b-47a7-87e4-7ae49a3e1736">KMS</option>
+                        <option value="a29ded5a-543e-47f1-bef4-c5ba6eafd62c">COMIDAS</option>
+                        <option value="4c4176fa-8dd2-46ad-92e5-edb96d4d0411">ALOJAMIENTO</option>
+                        <option value="9b19e9d7-3fb9-44a2-b79b-34eff81c2860">OTROS</option>
                     </select>
                 </div>
-                <p class="help-text">Si seleccionas "Gasto", deberás especificar los detalles.</p>
-            </div>
-
-            <div id="bloqueGastos" class="form-group">
-                <div class="form-group">
-                    <label for="tipoGastoSelect">Detalle del Gasto <span class="required">*</span></label>
-                    <div class="select-wrapper">
-                        <select id="tipoGastoSelect" name="tipo_gasto_value">
-                            <option value="">-- Selecciona el tipo de gasto --</option>
-                            <option value="be8c9f4e-a05b-47a7-87e4-7ae49a3e1736">KMS</option>
-                            <option value="a29ded5a-543e-47f1-bef4-c5ba6eafd62c">COMIDAS</option>
-                            <option value="4c4176fa-8dd2-46ad-92e5-edb96d4d0411">ALOJAMIENTO</option>
-                            <option value="9b19e9d7-3fb9-44a2-b79b-34eff81c2860">OTROS</option>
-                        </select>
-                    </div>
-                    <input type="hidden" name="tipo_gasto_field_id" value="81472277-44f0-434b-aa89-93b64cfd39b6">
-                </div>
-
                 <div class="gastos-grid">
                     <div class="form-group">
-                        <label for="importeGasto">Importe (€)</label>
-                        <input type="number" id="importeGasto" step="0.01" placeholder="0.00">
-                        <input type="hidden" name="custom_field_importe_id" value="ccf0cff1-3c0a-46d5-b910-ff0e6316e154">
+                        <label>Importe (€)</label>
+                        <input type="number" id="importeGasto" step="0.01">
                     </div>
-
-                    <div class="form-group" id="kmsWrapper" style="display: none;">
-                        <label for="kmsGasto">Kilómetros</label>
-                        <input type="number" id="kmsGasto" step="0.1" placeholder="0">
-                        <input type="hidden" name="custom_field_kms_id" value="450df9dc-d862-4059-a24e-eadcc69087d6">
+                    <div class="form-group" id="kmsWrapper" style="display:none;">
+                        <label>Kilómetros</label>
+                        <input type="number" id="kmsGasto" step="0.1">
                     </div>
                 </div>
-            </div>
-
-            <div class="form-group mb-4">
-                <label for="horas_trackeadas">Horas Incurridas</label>
-                <div class="relative">
-                    <input type="number" id="horas_trackeadas" name="horas_trackeadas" step="0.25" min="0" placeholder="Ej: 1.5">
-                    <div style="position: absolute; right: 10px; top: 12px; color: #a0aec0;">⏱️</div>
-                </div>
-                <p class="help-text">Deja vacío si no quieres imputar tiempo.</p>
             </div>
 
             <div class="form-group">
-                <label for="expedienteRelacionado">Expediente Relacionado</label>
+                <label>Horas Incurridas</label>
+                <div style="position:relative;">
+                    <input type="number" id="horas_trackeadas" step="0.25" placeholder="Ej: 1.5">
+                    <span style="position:absolute; right:10px; top:12px;">⏱️</span>
+                </div>
+                <p class="help-text">Deja vacío si no aplica.</p>
+            </div>
+
+            <div class="form-group">
+                <label>Expediente Relacionado</label>
                 <div class="lookup-container">
-                    <div class="lookup-input-wrapper">
-                        <span class="lookup-icon">🔍</span>
-                        <input type="text" id="expedienteRelacionado" name="expediente_search" placeholder="Buscar expediente..." autocomplete="off">
-                    </div>
+                    <input type="text" id="expedienteSearch" placeholder="🔍 Buscar expediente..." autocomplete="off">
                     <div id="expedienteResults" class="lookup-results"></div>
                     <div id="expedienteSelected" class="lookup-selected">
-                        <span class="lookup-selected-text" id="expedienteSelectedText"></span>
-                        <button type="button" class="lookup-clear" id="expedienteClear">✕ Quitar</button>
+                        <span id="expedienteSelectedText"></span>
+                        <button type="button" class="lookup-clear" id="expedienteClear">✕</button>
                     </div>
                 </div>
-                <input type="hidden" id="expedienteId" name="expediente_id">
-                <input type="hidden" id="expedienteListId" name="expediente_list_id">
-                <p class="help-text"><strong>Aviso:</strong> Si no seleccionas expediente, se creará en la lista 'Equipo' (General).</p>
+                <input type="hidden" id="expedienteId">
+                <input type="hidden" id="expedienteListId">
+                <p class="help-text">Si no seleccionas nada, irá a la lista 'Equipo'.</p>
             </div>
 
             <div class="form-group">
-                <label for="responsable">Responsable</label>
-                <div class="select-wrapper">
-                    <select id="responsable" name="assignee_id">
-                        <option value="">Cargando usuarios...</option>
-                    </select>
-                </div>
-                <p class="help-text">Opcional: puedes dejar sin asignar</p>
+                <label>Responsable</label>
+                <select id="responsableSelect">
+                    <option value="">Cargando lista...</option>
+                </select>
+                <p class="help-text">Se cargan desde ClickUp.</p>
             </div>
 
             <div class="form-group">
-                <label for="fechaLimite">Fecha Límite</label>
-                <input type="date" id="fechaLimite" name="fecha_limite">
-                <p class="help-text">Opcional: fecha de vencimiento</p>
+                <label>Fecha Límite</label>
+                <input type="date" id="fechaLimite">
             </div>
 
             <div class="form-group">
-                <label>Archivos Adjuntos</label>
-                <div class="file-upload-area" id="fileUploadArea">
-                    <div class="file-upload-icon">📁</div>
-                    <p><strong>Arrastra archivos aquí</strong> o haz clic para seleccionar</p>
-                    <p class="help-text">Máximo 10 archivos, 10MB cada uno</p>
-                    <input type="file" id="fileInput" name="archivos" multiple style="display: none;">
+                <div class="file-upload-area" id="dropZone">
+                    <p>📂 Arrastra archivos aquí</p>
+                    <input type="file" id="fileInput" multiple style="display:none;">
                 </div>
                 <div id="fileList" class="file-list"></div>
             </div>
 
-            <button type="submit" class="btn btn-primary" id="submitBtn">Crear Tarea</button>
+            <button type="submit" class="btn" id="submitBtn">Crear Tarea</button>
 
-            <div class="alert-container">
-                <div id="alertSuccess" class="alert alert-success">✓ Tarea creada correctamente</div>
-                <div id="alertError" class="alert alert-error">✗ <span id="errorMessage">Error al crear la tarea</span></div>
-            </div>
+            <div id="alertSuccess" class="alert alert-success"></div>
+            <div id="alertError" class="alert alert-error">❌ Error al crear la tarea</div>
+
         </form>
     </div>
 
     <script>
-        // ============================================
-        // CONFIGURACIÓN (REVISA TUS URLs)
-        // ============================================
+        // === CONFIGURACIÓN ===
         const CONFIG = {
+            // URL DEL WEBHOOK QUE ACEPTA GET (USUARIOS)
+            obtenerUsuariosUrl: 'https://n8n.escueladeefectividad.com/webhook/obtener-usuarios',
+            // URL DEL WEBHOOK PRINCIPAL (CREAR TAREA)
             crearTareaUrl: 'https://n8n.escueladeefectividad.com/webhook/crear-tarea',
+            // URL DE BUSQUEDA EXPEDIENTES
             buscarExpedientesUrl: 'https://n8n.escueladeefectividad.com/webhook/buscar-expedientes',
-            obtenerUsuariosUrl: 'https://n8n.escueladeefectividad.com/webhook/obtener-usuarios', // Asegúrate de que este webhook existe en N8N
-            debounceDelay: 300,
+            
             maxFiles: 10,
             maxFileSize: 10 * 1024 * 1024 // 10MB
         };
 
-        // ============================================
-        // ELEMENTOS DOM
-        // ============================================
+        // === VARIABLES GLOBALES ===
+        let selectedFiles = [];
+        let debounceTimer;
+
+        // === ELEMENTOS DOM ===
         const form = document.getElementById('mainForm');
+        const tipoTarea = document.getElementById('tipoTarea');
+        const bloqueGastos = document.getElementById('bloqueGastos');
+        const tipoGasto = document.getElementById('tipoGastoSelect');
+        const kmsWrapper = document.getElementById('kmsWrapper');
+        const responsableSelect = document.getElementById('responsableSelect');
         const submitBtn = document.getElementById('submitBtn');
         const alertSuccess = document.getElementById('alertSuccess');
         const alertError = document.getElementById('alertError');
-        const errorMessage = document.getElementById('errorMessage');
-        const fileUploadArea = document.getElementById('fileUploadArea');
-        const fileInput = document.getElementById('fileInput');
-        const fileList = document.getElementById('fileList');
 
-        const tipoTareaSelect = document.getElementById('tipoTarea');
-        const bloqueGastos = document.getElementById('bloqueGastos');
-        const tipoGastoSelect = document.getElementById('tipoGastoSelect');
-        const kmsWrapper = document.getElementById('kmsWrapper');
-        const kmsInput = document.getElementById('kmsGasto');
-        const importeInput = document.getElementById('importeGasto');
+        // === CARGA INICIAL (USUARIOS) ===
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("Iniciando aplicación...");
+            cargarUsuarios();
+        });
 
-        const expedienteInput = document.getElementById('expedienteRelacionado');
-        const expedienteResults = document.getElementById('expedienteResults');
-        const expedienteSelected = document.getElementById('expedienteSelected');
-        const expedienteSelectedText = document.getElementById('expedienteSelectedText');
-        const expedienteClear = document.getElementById('expedienteClear');
-        const expedienteIdInput = document.getElementById('expedienteId');
-        const expedienteListIdInput = document.getElementById('expedienteListId');
+        async function cargarUsuarios() {
+            try {
+                // Usamos GET
+                const response = await fetch(CONFIG.obtenerUsuariosUrl, { 
+                    method: 'GET', 
+                    headers: { 'Content-Type': 'application/json' }
+                });
 
-        const responsableSelect = document.getElementById('responsable');
+                if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+                
+                const data = await response.json();
 
-        let selectedFiles = [];
-        let debounceTimer = null;
+                if (data.usuarios && data.usuarios.length > 0) {
+                    let html = '<option value="">-- Sin asignar --</option>';
+                    data.usuarios.forEach(u => {
+                        html += `<option value="${u.id}">${u.username || u.name}</option>`;
+                    });
+                    responsableSelect.innerHTML = html;
+                } else {
+                    responsableSelect.innerHTML = '<option value="">No hay usuarios disponibles</option>';
+                }
 
-        // ============================================
-        // LOGICA UI
-        // ============================================
-        function showAlert(type, message = null) {
-            alertSuccess.classList.remove('active');
-            alertError.classList.remove('active');
-            if (type === 'success') {
-                alertSuccess.classList.add('active');
-                alertSuccess.scrollIntoView({ behavior: 'smooth', block: 'end' });
-                setTimeout(() => alertSuccess.classList.remove('active'), 5000);
-            } else if (type === 'error') {
-                if (message) errorMessage.textContent = message;
-                alertError.classList.add('active');
-                alertError.scrollIntoView({ behavior: 'smooth', block: 'end' });
-                setTimeout(() => alertError.classList.remove('active'), 5000);
+            } catch (error) {
+                console.error("Error usuarios:", error);
+                responsableSelect.innerHTML = '<option value="">⚠️ Error cargando</option><option value="4607189">Jesús (Fallback)</option>';
             }
+        }
+
+        // === LÓGICA DE INTERFAZ ===
+        tipoTarea.addEventListener('change', (e) => {
+            if(e.target.value.includes('1022')) { // ID de Gasto
+                bloqueGastos.style.display = 'block';
+                tipoGasto.required = true;
+            } else {
+                bloqueGastos.style.display = 'none';
+                tipoGasto.required = false;
+                tipoGasto.value = "";
+                document.getElementById('kmsGasto').value = "";
+                document.getElementById('importeGasto').value = "";
+                kmsWrapper.style.display = 'none';
+            }
+        });
+
+        tipoGasto.addEventListener('change', (e) => {
+            if(e.target.value === 'be8c9f4e-a05b-47a7-87e4-7ae49a3e1736') {
+                kmsWrapper.style.display = 'block';
+            } else {
+                kmsWrapper.style.display = 'none';
+            }
+        });
+
+        // === EXPEDIENTES ===
+        const expInput = document.getElementById('expedienteSearch');
+        const expResults = document.getElementById('expedienteResults');
+        const expSelected = document.getElementById('expedienteSelected');
+        
+        expInput.addEventListener('input', (e) => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => buscarExpedientes(e.target.value), 300);
+        });
+
+        async function buscarExpedientes(keyword) {
+            if(keyword.length < 2) { expResults.style.display = 'none'; return; }
+            expResults.innerHTML = '<div class="lookup-item">Buscando...</div>';
+            expResults.style.display = 'block';
+
+            try {
+                const res = await fetch(CONFIG.buscarExpedientesUrl, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({keyword})
+                });
+                const data = await res.json();
+                
+                if(data.expedientes && data.expedientes.length > 0) {
+                    expResults.innerHTML = data.expedientes.map(exp => `
+                        <div class="lookup-item" onclick="selectExp('${exp.id}', '${exp.name.replace(/'/g, "\\'")}', '${exp.list.id}')">
+                            <strong>${exp.name}</strong><br>
+                            <small>${exp.list.name} • ${exp.status}</small>
+                        </div>
+                    `).join('');
+                } else {
+                    expResults.innerHTML = '<div class="lookup-item">No encontrado</div>';
+                }
+            } catch(e) {
+                console.error(e);
+                expResults.innerHTML = '<div class="lookup-item">Error busqueda</div>';
+            }
+        }
+
+        window.selectExp = (id, name, listId) => {
+            document.getElementById('expedienteId').value = id;
+            document.getElementById('expedienteListId').value = listId;
+            document.getElementById('expedienteSelectedText').innerText = name;
+            expInput.style.display = 'none';
+            expResults.style.display = 'none';
+            expSelected.style.display = 'flex';
+        };
+
+        document.getElementById('expedienteClear').addEventListener('click', () => {
+            document.getElementById('expedienteId').value = "";
+            document.getElementById('expedienteListId').value = "";
+            expInput.value = "";
+            expInput.style.display = 'block';
+            expSelected.style.display = 'none';
+        });
+
+        // === ARCHIVOS ===
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        
+        dropZone.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+        
+        function handleFiles(files) {
+            Array.from(files).forEach(f => selectedFiles.push(f));
+            renderFiles();
+        }
+        
+        function renderFiles() {
+            const list = document.getElementById('fileList');
+            if(selectedFiles.length === 0) { list.innerHTML = ""; return; }
+            list.innerHTML = selectedFiles.map((f, i) => `
+                <div>${f.name} <span style="color:red;cursor:pointer;margin-left:5px;" onclick="removeFile(${i})">✕</span></div>
+            `).join('');
+        }
+        window.removeFile = (index) => {
+            selectedFiles.splice(index, 1);
+            renderFiles();
         }
 
         function formatBytes(bytes) {
@@ -301,298 +324,107 @@
             return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
         }
 
-        tipoTareaSelect.addEventListener('change', function() {
-            const selectedText = tipoTareaSelect.options[tipoTareaSelect.selectedIndex].text;
-            if (selectedText.toLowerCase().includes('gasto')) {
-                bloqueGastos.style.display = 'block';
-                tipoGastoSelect.required = true;
-            } else {
-                bloqueGastos.style.display = 'none';
-                tipoGastoSelect.required = false;
-                tipoGastoSelect.value = '';
-                kmsInput.value = '';
-                importeInput.value = '';
-                kmsWrapper.style.display = 'none';
-            }
-        });
-
-        tipoGastoSelect.addEventListener('change', function() {
-            if (this.value === 'be8c9f4e-a05b-47a7-87e4-7ae49a3e1736') {
-                kmsWrapper.style.display = 'block';
-            } else {
-                kmsWrapper.style.display = 'none';
-                kmsInput.value = '';
-            }
-        });
-
-        // ============================================
-        // CARGA DE USUARIOS (DINÁMICA)
-        // ============================================
-        async function cargarUsuarios() {
-            try {
-                const response = await fetch(CONFIG.obtenerUsuariosUrl, { method: 'GET' });
-                if(!response.ok) throw new Error('Error red');
-                const data = await response.json();
-
-                if (data.usuarios && data.usuarios.length > 0) {
-                    let options = '<option value="">-- Sin asignar --</option>';
-                    options += data.usuarios.map(u => `<option value="${u.id}">${u.username || u.name}</option>`).join('');
-                    responsableSelect.innerHTML = options;
-                } else {
-                    responsableSelect.innerHTML = '<option value="">No hay usuarios disponibles</option>';
-                }
-            } catch (error) {
-                console.warn('Fallo carga usuarios, usando fallback:', error);
-                // Fallback si falla el webhook
-                responsableSelect.innerHTML = `
-                    <option value="">-- Sin asignar (Fallback) --</option>
-                    <option value="4607189">Jesús</option>
-                `;
-            }
-        }
-
-        // ============================================
-        // BUSQUEDA EXPEDIENTES
-        // ============================================
-        async function buscarExpedientes(query) {
-            if (query.length < 2) {
-                expedienteResults.classList.remove('active');
-                return;
-            }
-            expedienteResults.innerHTML = '<div class="lookup-loading">Buscando expedientes...</div>';
-            expedienteResults.classList.add('active');
-
-            try {
-                const response = await fetch(CONFIG.buscarExpedientesUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ keyword: query })
-                });
-                const data = await response.json();
-
-                if (data.expedientes && data.expedientes.length > 0) {
-                    expedienteResults.innerHTML = data.expedientes
-                        .map(exp => `
-                            <div class="lookup-item" 
-                                 data-id="${exp.id}" 
-                                 data-name="${exp.name}"
-                                 data-list-id="${exp.list.id}">
-                                <div class="lookup-item-main">${exp.name}</div>
-                                <div class="lookup-item-sub">Lista: ${exp.list.name} • ${exp.status}</div>
-                            </div>
-                        `).join('');
-                    
-                    expedienteResults.querySelectorAll('.lookup-item').forEach(item => {
-                        item.addEventListener('click', () => {
-                            seleccionarExpediente(item.dataset.id, item.dataset.name, item.dataset.listId);
-                        });
-                    });
-                } else {
-                    expedienteResults.innerHTML = '<div class="lookup-no-results">No se encontraron expedientes</div>';
-                }
-            } catch (error) {
-                console.error('Error al buscar:', error);
-                expedienteResults.innerHTML = '<div class="lookup-no-results">Error en la búsqueda</div>';
-            }
-        }
-
-        function seleccionarExpediente(id, name, listId) {
-            expedienteIdInput.value = id;
-            expedienteListIdInput.value = listId;
-            expedienteSelectedText.textContent = name;
-            expedienteInput.value = '';
-            expedienteResults.classList.remove('active');
-            expedienteSelected.classList.add('active');
-            expedienteInput.style.display = 'none';
-        }
-
-        expedienteInput.addEventListener('input', (e) => {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => buscarExpedientes(e.target.value), CONFIG.debounceDelay);
-        });
-
-        expedienteClear.addEventListener('click', () => {
-            expedienteIdInput.value = '';
-            expedienteListIdInput.value = '';
-            expedienteInput.value = '';
-            expedienteSelected.classList.remove('active');
-            expedienteInput.style.display = 'block';
-        });
-
-        document.addEventListener('click', (e) => {
-            if (!expedienteInput.contains(e.target) && !expedienteResults.contains(e.target)) {
-                expedienteResults.classList.remove('active');
-            }
-        });
-
-        // ============================================
-        // GESTIÓN DE ARCHIVOS
-        // ============================================
-        fileUploadArea.addEventListener('click', () => fileInput.click());
-        fileUploadArea.addEventListener('dragover', (e) => { e.preventDefault(); fileUploadArea.classList.add('dragover'); });
-        fileUploadArea.addEventListener('dragleave', () => fileUploadArea.classList.remove('dragover'));
-        fileUploadArea.addEventListener('drop', (e) => { e.preventDefault(); fileUploadArea.classList.remove('dragover'); handleFiles(e.dataTransfer.files); });
-        fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
-
-        function handleFiles(files) {
-            const filesArray = Array.from(files);
-            if (selectedFiles.length + filesArray.length > CONFIG.maxFiles) {
-                showAlert('error', `Máximo ${CONFIG.maxFiles} archivos permitidos`);
-                return;
-            }
-            for (let file of filesArray) {
-                if (file.size > CONFIG.maxFileSize) {
-                    showAlert('error', `El archivo ${file.name} excede 10MB`);
-                    return;
-                }
-            }
-            selectedFiles = [...selectedFiles, ...filesArray];
-            renderFileList();
-        }
-
-        function renderFileList() {
-            if (selectedFiles.length === 0) { fileList.innerHTML = ''; return; }
-            fileList.innerHTML = selectedFiles.map((file, index) => `
-                <div class="file-item">
-                    <span class="file-item-name">📄 ${file.name} (${formatBytes(file.size)})</span>
-                    <button type="button" class="file-item-remove" data-index="${index}">Eliminar</button>
-                </div>
-            `).join('');
-            fileList.querySelectorAll('.file-item-remove').forEach(btn => {
-                btn.addEventListener('click', () => { selectedFiles.splice(parseInt(btn.dataset.index), 1); renderFileList(); });
-            });
-        }
-
-        // ============================================
-        // 
-
-// ============================================
-        // ENVÍO DEL FORMULARIO (ACTUALIZADO)
-        // ============================================
-        form.addEventListener('submit', async function(e) {
+        // === ENVIAR FORMULARIO (LOGICA PRINCIPAL) ===
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // UI Loading
+            // UI Reset
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="spinner"></span>Creando tarea...';
-            
-            // Ocultamos alertas previas por si acaso
-            alertSuccess.classList.remove('active');
-            alertError.classList.remove('active');
+            submitBtn.innerText = "Enviando...";
+            alertSuccess.style.display = 'none';
+            alertError.style.display = 'none';
 
             try {
                 const formData = new FormData();
                 
-                // 1. RECOPILACIÓN DE DATOS
+                // 1. CAMPOS BÁSICOS
                 formData.append('nombre_tarea', document.getElementById('nombreTarea').value);
                 formData.append('descripcion', document.getElementById('descripcion').value);
+                
+                // Tipo y Gastos
+                const typeId = tipoTarea.value;
+                if(typeId) formData.append('task_type_id', typeId);
 
-                // Task Type
-                const taskTypeId = tipoTareaSelect.value;
-                if (taskTypeId) formData.append('task_type_id', taskTypeId);
-
-                // Gastos
-                if (bloqueGastos.style.display !== 'none' && tipoGastoSelect.value) {
+                if(bloqueGastos.style.display !== 'none' && tipoGasto.value) {
                     formData.append('custom_field_gasto_id', '81472277-44f0-434b-aa89-93b64cfd39b6');
-                    formData.append('custom_field_gasto_value', tipoGastoSelect.value);
-
-                    const importeVal = document.getElementById('importeGasto').value;
-                    if (importeVal) {
+                    formData.append('custom_field_gasto_value', tipoGasto.value);
+                    const imp = document.getElementById('importeGasto').value;
+                    if(imp) {
                         formData.append('custom_field_importe_id', 'ccf0cff1-3c0a-46d5-b910-ff0e6316e154');
-                        formData.append('custom_field_importe_value', importeVal);
+                        formData.append('custom_field_importe_value', imp);
                     }
-                    const kmsVal = document.getElementById('kmsGasto').value;
-                    if (kmsWrapper.style.display !== 'none' && kmsVal) {
+                    const kms = document.getElementById('kmsGasto').value;
+                    if(kms && kmsWrapper.style.display !== 'none') {
                         formData.append('custom_field_kms_id', '450df9dc-d862-4059-a24e-eadcc69087d6');
-                        formData.append('custom_field_kms_value', kmsVal);
+                        formData.append('custom_field_kms_value', kms);
                     }
                 }
 
-                // Horas (Tu código ya estaba bien aquí)
+                // >>> NUEVO: HORAS INCURRIDAS <<<
                 const horasVal = document.getElementById('horas_trackeadas').value;
                 if (horasVal) {
                     formData.append('horas_trackeadas', horasVal);
                 }
 
                 // Expediente
-                if (expedienteIdInput.value) {
-                    formData.append('expediente_id', expedienteIdInput.value);
-                    formData.append('expediente_list_id', expedienteListIdInput.value);
-                    formData.append('expediente_name', expedienteSelectedText.textContent);
+                const expId = document.getElementById('expedienteId').value;
+                if(expId) {
+                    formData.append('expediente_id', expId);
+                    formData.append('expediente_list_id', document.getElementById('expedienteListId').value);
                 }
 
-                // Responsable
-                const assigneeId = responsableSelect.value;
-                if (assigneeId) formData.append('assignee_id', assigneeId);
+                // Asignado
+                const assignee = responsableSelect.value;
+                if(assignee) formData.append('assignee_id', assignee);
 
-                // Fecha límite
-                const fechaLimite = document.getElementById('fechaLimite').value;
-                if (fechaLimite) formData.append('fecha_limite', fechaLimite);
+                // Fecha
+                const fecha = document.getElementById('fechaLimite').value;
+                if(fecha) formData.append('fecha_limite', fecha);
 
                 // Archivos
-                selectedFiles.forEach((file, index) => {
-                    formData.append(`archivo_${index}`, file);
-                });
+                selectedFiles.forEach((f, i) => formData.append(`archivo_${i}`, f));
                 formData.append('total_archivos', selectedFiles.length);
 
-                // 2. ENVIAR A N8N
-                const response = await fetch(CONFIG.crearTareaUrl, {
+                // 2. LLAMADA AL SERVIDOR
+                const res = await fetch(CONFIG.crearTareaUrl, {
                     method: 'POST',
                     body: formData
                 });
 
-                if (!response.ok) throw new Error('Error en el servidor');
+                if(!res.ok) throw new Error("Error en el servidor");
 
                 // 3. PROCESAR RESPUESTA EXITOSA
-                const result = await response.json(); // Aquí recibimos el JSON con taskId y url
-
-                // Construimos el mensaje bonito con el enlace
+                const result = await res.json();
+                
+                // Pintar mensaje bonito
+                alertSuccess.style.display = 'block';
                 alertSuccess.innerHTML = `
-                    ✅ <strong>¡Tarea creada correctamente!</strong><br>
-                    🆔 ID: #${result.taskId || '---'}<br>
+                    ✅ <strong>¡Tarea creada con éxito!</strong><br>
+                    🆔 ID: <strong>#${result.taskId || '---'}</strong><br>
                     🔗 <a href="${result.url}" target="_blank" style="color: #22543d; font-weight: bold; text-decoration: underline;">
                         Abrir tarea en ClickUp
                     </a>
                 `;
-                
-                // Mostramos el mensaje
-                alertSuccess.classList.add('active');
-                alertSuccess.scrollIntoView({ behavior: 'smooth', block: 'end' });
 
-                // 4. LIMPIEZA DEL FORMULARIO
+                // 4. LIMPIEZA
                 form.reset();
                 selectedFiles = [];
-                renderFileList();
+                renderFiles();
                 
-                // Reset de elementos manuales
-                expedienteIdInput.value = '';
-                expedienteListIdInput.value = '';
-                expedienteSelected.classList.remove('active');
-                expedienteInput.style.display = 'block';
-                bloqueGastos.style.display = 'none';
-                kmsWrapper.style.display = 'none';
-                tipoTareaSelect.value = "";
-                // Si la carga de usuarios falló, responsableSelect podría no tener valor vacío por defecto
+                // Resets manuales
                 if(responsableSelect.options.length > 0) responsableSelect.selectedIndex = 0;
+                document.getElementById('expedienteClear').click();
+                bloqueGastos.style.display = 'none';
+                tipoTarea.value = "";
 
-            } catch (error) {
-                console.error('Error:', error);
-                // Usamos tu función auxiliar para el error
-                showAlert('error', 'Hubo un error al crear la tarea. Revisa que N8N esté activo.');
+            } catch (e) {
+                console.error(e);
+                alertError.style.display = 'block';
+                alertError.innerHTML = `❌ Error: No se pudo conectar con N8N o el flujo falló.`;
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = 'Crear Tarea';
+                submitBtn.innerText = "Crear Tarea";
             }
-        });
-
-        
-
-        // ============================================
-        // INICIALIZACIÓN
-        // ============================================
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('🚀 Formulario listo');
-            cargarUsuarios(); // Carga usuarios al iniciar
         });
     </script>
 </body>
