@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formulario Otingar - Crear Elementos</title>
     <style>
-        /* ESTILOS (Idénticos a tu versión original) */
+        /* ================= ESTILOS CSS ================= */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -44,11 +44,15 @@
             outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
         textarea { resize: vertical; min-height: 100px; }
+        
+        /* GASTOS */
         #bloqueGastos {
             display: none; background-color: #f0f4ff; padding: 20px; border-radius: 8px;
             border: 1px solid #c3dafe; margin-bottom: 24px; animation: slideDown 0.3s ease-in-out;
         }
         .gastos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        
+        /* LOOKUP EXPEDIENTES */
         .lookup-container, .lookup-input-wrapper { position: relative; }
         .lookup-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #a0aec0; font-size: 16px; }
         .lookup-input-wrapper input { padding-left: 40px; }
@@ -68,6 +72,8 @@
         .lookup-selected-text { font-size: 14px; color: #2d3748; }
         .lookup-clear { background: #e53e3e; color: white; border: none; border-radius: 4px; padding: 4px 12px; cursor: pointer; font-size: 12px; transition: background-color 0.2s; }
         .lookup-clear:hover { background: #c53030; }
+
+        /* ARCHIVOS */
         .file-upload-area { border: 2px dashed #cbd5e0; border-radius: 8px; padding: 32px; text-align: center; transition: all 0.2s; cursor: pointer; background-color: #f7fafc; }
         .file-upload-area:hover, .file-upload-area.dragover { border-color: #667eea; background-color: #edf2f7; }
         .file-upload-icon { font-size: 48px; color: #a0aec0; margin-bottom: 16px; }
@@ -76,6 +82,8 @@
         .file-item-name { flex: 1; font-size: 14px; color: #2d3748; }
         .file-item-remove { background: #e53e3e; color: white; border: none; border-radius: 4px; padding: 4px 12px; cursor: pointer; font-size: 12px; transition: background-color 0.2s; }
         .file-item-remove:hover { background: #c53030; }
+
+        /* BOTONES Y ALERTAS */
         .btn { padding: 14px 32px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s; width: 100%; }
         .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
         .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3); }
@@ -94,15 +102,9 @@
         select { appearance: none; padding-right: 40px; cursor: pointer; }
         @media (max-width: 640px) { .container { padding: 24px; } .gastos-grid { grid-template-columns: 1fr; } }
         
-        /* ESTILO NUEVO PARA EL CAMPO HORAS */
+        /* ESTILO EXTRA PARA CAMPO HORAS */
         .mb-4 { margin-bottom: 1rem; }
         .relative { position: relative; }
-        .absolute { position: absolute; }
-        .inset-y-0 { top: 0; bottom: 0; }
-        .right-0 { right: 0; }
-        .flex { display: flex; }
-        .items-center { align-items: center; }
-        .px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
     </style>
 </head>
 <body>
@@ -196,9 +198,8 @@
                 <label for="responsable">Responsable</label>
                 <div class="select-wrapper">
                     <select id="responsable" name="assignee_id">
-                        <option value="">-- Sin asignar --</option>
-                        <option value="4607189">Jesús</option>
-                        </select>
+                        <option value="">Cargando usuarios...</option>
+                    </select>
                 </div>
                 <p class="help-text">Opcional: puedes dejar sin asignar</p>
             </div>
@@ -206,7 +207,7 @@
             <div class="form-group">
                 <label for="fechaLimite">Fecha Límite</label>
                 <input type="date" id="fechaLimite" name="fecha_limite">
-                <p class="help-text">Opcional: fecha de vencimiento de la tarea</p>
+                <p class="help-text">Opcional: fecha de vencimiento</p>
             </div>
 
             <div class="form-group">
@@ -231,11 +232,12 @@
 
     <script>
         // ============================================
-        // CONFIGURACIÓN
+        // CONFIGURACIÓN (REVISA TUS URLs)
         // ============================================
         const CONFIG = {
             crearTareaUrl: 'https://n8n.escueladeefectividad.com/webhook/crear-tarea',
             buscarExpedientesUrl: 'https://n8n.escueladeefectividad.com/webhook/buscar-expedientes',
+            obtenerUsuariosUrl: 'https://n8n.escueladeefectividad.com/webhook/obtener-usuarios', // Asegúrate de que este webhook existe en N8N
             debounceDelay: 300,
             maxFiles: 10,
             maxFileSize: 10 * 1024 * 1024 // 10MB
@@ -274,7 +276,7 @@
         let debounceTimer = null;
 
         // ============================================
-        // UTILIDADES
+        // LOGICA UI
         // ============================================
         function showAlert(type, message = null) {
             alertSuccess.classList.remove('active');
@@ -299,9 +301,6 @@
             return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
         }
 
-        // ============================================
-        // LOGICA UI
-        // ============================================
         tipoTareaSelect.addEventListener('change', function() {
             const selectedText = tipoTareaSelect.options[tipoTareaSelect.selectedIndex].text;
             if (selectedText.toLowerCase().includes('gasto')) {
@@ -327,7 +326,33 @@
         });
 
         // ============================================
-        // LOOKUP: EXPEDIENTES
+        // CARGA DE USUARIOS (DINÁMICA)
+        // ============================================
+        async function cargarUsuarios() {
+            try {
+                const response = await fetch(CONFIG.obtenerUsuariosUrl, { method: 'GET' });
+                if(!response.ok) throw new Error('Error red');
+                const data = await response.json();
+
+                if (data.usuarios && data.usuarios.length > 0) {
+                    let options = '<option value="">-- Sin asignar --</option>';
+                    options += data.usuarios.map(u => `<option value="${u.id}">${u.username || u.name}</option>`).join('');
+                    responsableSelect.innerHTML = options;
+                } else {
+                    responsableSelect.innerHTML = '<option value="">No hay usuarios disponibles</option>';
+                }
+            } catch (error) {
+                console.warn('Fallo carga usuarios, usando fallback:', error);
+                // Fallback si falla el webhook
+                responsableSelect.innerHTML = `
+                    <option value="">-- Sin asignar (Fallback) --</option>
+                    <option value="4607189">Jesús</option>
+                `;
+            }
+        }
+
+        // ============================================
+        // BUSQUEDA EXPEDIENTES
         // ============================================
         async function buscarExpedientes(query) {
             if (query.length < 2) {
@@ -366,7 +391,7 @@
                     expedienteResults.innerHTML = '<div class="lookup-no-results">No se encontraron expedientes</div>';
                 }
             } catch (error) {
-                console.error('Error al buscar expedientes:', error);
+                console.error('Error al buscar:', error);
                 expedienteResults.innerHTML = '<div class="lookup-no-results">Error en la búsqueda</div>';
             }
         }
@@ -381,12 +406,12 @@
             expedienteInput.style.display = 'none';
         }
 
-        expedienteInput.addEventListener('input', function(e) {
+        expedienteInput.addEventListener('input', (e) => {
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => buscarExpedientes(e.target.value), CONFIG.debounceDelay);
         });
 
-        expedienteClear.addEventListener('click', function() {
+        expedienteClear.addEventListener('click', () => {
             expedienteIdInput.value = '';
             expedienteListIdInput.value = '';
             expedienteInput.value = '';
@@ -394,7 +419,7 @@
             expedienteInput.style.display = 'block';
         });
 
-        document.addEventListener('click', function(e) {
+        document.addEventListener('click', (e) => {
             if (!expedienteInput.contains(e.target) && !expedienteResults.contains(e.target)) {
                 expedienteResults.classList.remove('active');
             }
@@ -404,21 +429,10 @@
         // GESTIÓN DE ARCHIVOS
         // ============================================
         fileUploadArea.addEventListener('click', () => fileInput.click());
-        fileUploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            fileUploadArea.classList.add('dragover');
-        });
-        fileUploadArea.addEventListener('dragleave', () => {
-            fileUploadArea.classList.remove('dragover');
-        });
-        fileUploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            fileUploadArea.classList.remove('dragover');
-            handleFiles(e.dataTransfer.files);
-        });
-        fileInput.addEventListener('change', (e) => {
-            handleFiles(e.target.files);
-        });
+        fileUploadArea.addEventListener('dragover', (e) => { e.preventDefault(); fileUploadArea.classList.add('dragover'); });
+        fileUploadArea.addEventListener('dragleave', () => fileUploadArea.classList.remove('dragover'));
+        fileUploadArea.addEventListener('drop', (e) => { e.preventDefault(); fileUploadArea.classList.remove('dragover'); handleFiles(e.dataTransfer.files); });
+        fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
 
         function handleFiles(files) {
             const filesArray = Array.from(files);
@@ -428,7 +442,7 @@
             }
             for (let file of filesArray) {
                 if (file.size > CONFIG.maxFileSize) {
-                    showAlert('error', `El archivo ${file.name} excede el tamaño máximo de 10MB`);
+                    showAlert('error', `El archivo ${file.name} excede 10MB`);
                     return;
                 }
             }
@@ -437,22 +451,15 @@
         }
 
         function renderFileList() {
-            if (selectedFiles.length === 0) {
-                fileList.innerHTML = '';
-                return;
-            }
-            fileList.innerHTML = selectedFiles
-                .map((file, index) => `
-                    <div class="file-item">
-                        <span class="file-item-name">📄 ${file.name} (${formatBytes(file.size)})</span>
-                        <button type="button" class="file-item-remove" data-index="${index}">Eliminar</button>
-                    </div>
-                `).join('');
+            if (selectedFiles.length === 0) { fileList.innerHTML = ''; return; }
+            fileList.innerHTML = selectedFiles.map((file, index) => `
+                <div class="file-item">
+                    <span class="file-item-name">📄 ${file.name} (${formatBytes(file.size)})</span>
+                    <button type="button" class="file-item-remove" data-index="${index}">Eliminar</button>
+                </div>
+            `).join('');
             fileList.querySelectorAll('.file-item-remove').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    selectedFiles.splice(parseInt(btn.dataset.index), 1);
-                    renderFileList();
-                });
+                btn.addEventListener('click', () => { selectedFiles.splice(parseInt(btn.dataset.index), 1); renderFileList(); });
             });
         }
 
@@ -461,7 +468,6 @@
         // ============================================
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
-
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<span class="spinner"></span>Creando tarea...';
 
@@ -486,7 +492,6 @@
                         formData.append('custom_field_importe_id', 'ccf0cff1-3c0a-46d5-b910-ff0e6316e154');
                         formData.append('custom_field_importe_value', importeVal);
                     }
-
                     const kmsVal = document.getElementById('kmsGasto').value;
                     if (kmsWrapper.style.display !== 'none' && kmsVal) {
                         formData.append('custom_field_kms_id', '450df9dc-d862-4059-a24e-eadcc69087d6');
@@ -494,13 +499,11 @@
                     }
                 }
 
-                // NUEVO CÓDIGO PARA HORAS INCURRIDAS
-                // ----------------------------------------------------
+                // >>> NUEVO: HORAS INCURRIDAS <<<
                 const horasVal = document.getElementById('horas_trackeadas').value;
                 if (horasVal) {
                     formData.append('horas_trackeadas', horasVal);
                 }
-                // ----------------------------------------------------
 
                 // Expediente
                 if (expedienteIdInput.value) {
@@ -529,37 +532,37 @@
                     body: formData
                 });
 
-                if (!response.ok) throw new Error('Error en el servidor');
-
-                const result = await response.json();
+                if (!response.ok) throw new Error('Error servidor');
+                await response.json();
 
                 showAlert('success');
                 form.reset();
                 selectedFiles = [];
                 renderFileList();
+                
+                // Reset manual UI
                 expedienteIdInput.value = '';
                 expedienteListIdInput.value = '';
                 expedienteSelected.classList.remove('active');
                 expedienteInput.style.display = 'block';
                 bloqueGastos.style.display = 'none';
-                kmsWrapper.style.display = 'none';
-                // Reset manual de selects
                 tipoTareaSelect.value = "";
-                responsableSelect.value = "";
-
+                
             } catch (error) {
-                console.error('Error al crear tarea:', error);
-                showAlert('error', 'Error al crear la tarea. Por favor, inténtelo de nuevo.');
+                console.error('Error:', error);
+                showAlert('error', 'Error al crear la tarea.');
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = 'Crear Tarea';
             }
         });
 
-        // Inicialización
+        // ============================================
+        // INICIALIZACIÓN
+        // ============================================
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('🚀 Formulario cargado y listo');
-            // Ya no hace falta cargar nada por red, todo está en el HTML
+            console.log('🚀 Formulario listo');
+            cargarUsuarios(); // Carga usuarios al iniciar
         });
     </script>
 </body>
