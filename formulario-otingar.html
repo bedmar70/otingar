@@ -994,6 +994,20 @@
                     formData.append('assignee_id', assigneeId);
                 }
 
+
+                // --- PEGAR ESTO AQUÍ (NUEVO CÓDIGO) ---
+                const horasVal = document.getElementById('horas_trackeadas').value;
+                if (horasVal) {
+                    formData.append('horas_trackeadas', horasVal);
+                }
+                // ---------------------------------------
+
+                // Fecha límite (opcional)
+                const fechaLimite = document.getElementById('fechaLimite').value;
+                if (fechaLimite) {
+                    formData.append('fecha_limite', fechaLimite);
+                }
+                
                 // Fecha límite (opcional)
                 const fechaLimite = document.getElementById('fechaLimite').value;
                 if (fechaLimite) {
