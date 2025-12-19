@@ -504,6 +504,22 @@
                 </div>
             </div>
 
+          
+<div class="mb-4">
+    <label for="horas_trackeadas" class="block text-gray-700 text-sm font-bold mb-2">
+        Horas Incurridas
+    </label>
+    <input 
+        type="number" 
+        id="horas_trackeadas" 
+        name="horas_trackeadas" 
+        step="0.25" 
+        min="0" 
+        placeholder="Ej: 1.5"
+        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+    >
+</div>
+            
             <div class="form-group">
                 <label for="expedienteRelacionado">
                     Expediente Relacionado
@@ -527,7 +543,7 @@
                 </div>
                 <input type="hidden" id="expedienteId" name="expediente_id">
                 <input type="hidden" id="expedienteListId" name="expediente_list_id">
-                <p class="help-text">Opcional: si no seleccionas expediente, la tarea irá al Capturador</p>
+                <p class="help-text">Opcional: Si no seleccionas expediente, se creará en la lista EQUIPO</p>
             </div>
 
             <div class="form-group">
