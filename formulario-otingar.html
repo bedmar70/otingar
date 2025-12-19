@@ -464,17 +464,26 @@
         }
 
         // ============================================
-        // ENVÍO DEL FORMULARIO
+        // 
+
+// ============================================
+        // ENVÍO DEL FORMULARIO (ACTUALIZADO)
         // ============================================
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
+            
+            // UI Loading
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<span class="spinner"></span>Creando tarea...';
+            
+            // Ocultamos alertas previas por si acaso
+            alertSuccess.classList.remove('active');
+            alertError.classList.remove('active');
 
             try {
                 const formData = new FormData();
                 
-                // Campos básicos
+                // 1. RECOPILACIÓN DE DATOS
                 formData.append('nombre_tarea', document.getElementById('nombreTarea').value);
                 formData.append('descripcion', document.getElementById('descripcion').value);
 
@@ -482,7 +491,7 @@
                 const taskTypeId = tipoTareaSelect.value;
                 if (taskTypeId) formData.append('task_type_id', taskTypeId);
 
-                // GASTOS
+                // Gastos
                 if (bloqueGastos.style.display !== 'none' && tipoGastoSelect.value) {
                     formData.append('custom_field_gasto_id', '81472277-44f0-434b-aa89-93b64cfd39b6');
                     formData.append('custom_field_gasto_value', tipoGastoSelect.value);
@@ -499,7 +508,7 @@
                     }
                 }
 
-                // >>> NUEVO: HORAS INCURRIDAS <<<
+                // Horas (Tu código ya estaba bien aquí)
                 const horasVal = document.getElementById('horas_trackeadas').value;
                 if (horasVal) {
                     formData.append('horas_trackeadas', horasVal);
@@ -526,36 +535,57 @@
                 });
                 formData.append('total_archivos', selectedFiles.length);
 
-                // Enviar a N8N
+                // 2. ENVIAR A N8N
                 const response = await fetch(CONFIG.crearTareaUrl, {
                     method: 'POST',
                     body: formData
                 });
 
-                if (!response.ok) throw new Error('Error servidor');
-                await response.json();
+                if (!response.ok) throw new Error('Error en el servidor');
 
-                showAlert('success');
+                // 3. PROCESAR RESPUESTA EXITOSA
+                const result = await response.json(); // Aquí recibimos el JSON con taskId y url
+
+                // Construimos el mensaje bonito con el enlace
+                alertSuccess.innerHTML = `
+                    ✅ <strong>¡Tarea creada correctamente!</strong><br>
+                    🆔 ID: #${result.taskId || '---'}<br>
+                    🔗 <a href="${result.url}" target="_blank" style="color: #22543d; font-weight: bold; text-decoration: underline;">
+                        Abrir tarea en ClickUp
+                    </a>
+                `;
+                
+                // Mostramos el mensaje
+                alertSuccess.classList.add('active');
+                alertSuccess.scrollIntoView({ behavior: 'smooth', block: 'end' });
+
+                // 4. LIMPIEZA DEL FORMULARIO
                 form.reset();
                 selectedFiles = [];
                 renderFileList();
                 
-                // Reset manual UI
+                // Reset de elementos manuales
                 expedienteIdInput.value = '';
                 expedienteListIdInput.value = '';
                 expedienteSelected.classList.remove('active');
                 expedienteInput.style.display = 'block';
                 bloqueGastos.style.display = 'none';
+                kmsWrapper.style.display = 'none';
                 tipoTareaSelect.value = "";
-                
+                // Si la carga de usuarios falló, responsableSelect podría no tener valor vacío por defecto
+                if(responsableSelect.options.length > 0) responsableSelect.selectedIndex = 0;
+
             } catch (error) {
                 console.error('Error:', error);
-                showAlert('error', 'Error al crear la tarea.');
+                // Usamos tu función auxiliar para el error
+                showAlert('error', 'Hubo un error al crear la tarea. Revisa que N8N esté activo.');
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = 'Crear Tarea';
             }
         });
+
+        
 
         // ============================================
         // INICIALIZACIÓN
